@@ -139,13 +139,13 @@ export default class ModuleInstance extends InstanceBase {
         this.rebuild();
       } else {
         this.refreshVariableValues();
-        this.checkFeedbacks();
+        this.checkAllFeedbacks();
       }
     } catch (err) {
       this.connected = false;
       this.updateStatus(InstanceStatus.ConnectionFailure, err.message);
       this.refreshVariableValues();
-      this.checkFeedbacks();
+      this.checkAllFeedbacks();
     }
   }
 
@@ -155,7 +155,7 @@ export default class ModuleInstance extends InstanceBase {
     UpdateVariableDefinitions(this);
     UpdatePresets(this);
     this.refreshVariableValues();
-    this.checkFeedbacks();
+    this.checkAllFeedbacks();
   }
 
   /** A state entry's own id. /api/sources entries carry the same shape
