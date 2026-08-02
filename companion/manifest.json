@@ -1,0 +1,28 @@
+{
+  "$schema": "../node_modules/@companion-module/base/assets/manifest.schema.json",
+  "type": "connection",
+  "id": "weblinked",
+  "name": "weblinked",
+  "shortname": "WebLinked",
+  "description": "Control WebLinked — navigate and reload the page, run JavaScript in it, mute, change raster format, enable and disable SDI/NDI/OMT/screen outputs, set per-output backgrounds, and watch pacing and receiver health. Multi-source aware.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "repository": "git+https://github.com/stoatworks-labs/companion-module-weblinked.git",
+  "bugs": "https://github.com/stoatworks-labs/companion-module-weblinked/issues",
+  "maintainers": [
+    {
+      "name": "Allan Sargeant",
+      "email": ""
+    }
+  ],
+  "runtime": {
+    "type": "node22",
+    "api": "nodejs-ipc",
+    "apiVersion": "0.0.0",
+    "entrypoint": "../src/main.js"
+  },
+  "legacyIds": [],
+  "manufacturer": "Stoatworks Labs",
+  "products": ["WebLinked"],
+  "keywords": ["ndi", "decklink", "sdi", "graphics", "browser", "cef", "omt"]
+}
