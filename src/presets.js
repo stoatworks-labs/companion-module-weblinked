@@ -1,3 +1,8 @@
+// Variable references in preset text use `self.label`, the CONNECTION's label,
+// not the module id. Companion resolves $(label:variable) against whatever the
+// operator named this connection — hardcoding the module id produces buttons
+// that render the raw $(...) text on any connection that has been renamed, and
+// on a second instance of the same module.
 import { safeId } from "./main.js";
 
 // Two kinds of preset here, and the split matters:
@@ -93,7 +98,7 @@ export default function UpdatePresets(self) {
 
   presets.mute = preset({
     name: "Mute / unmute audio",
-    text: "AUDIO\n$(weblinked:connection_status)",
+    text: `AUDIO\n$(${self.label}:connection_status)`,
     bgcolor: BLACK,
     actions: [{ actionId: "mute", options: { mode: "toggle", source: "" } }],
     feedbacks: [
@@ -107,7 +112,7 @@ export default function UpdatePresets(self) {
 
   presets.url_display = preset({
     name: "Loaded URL (no action)",
-    text: "$(weblinked:primary_source)",
+    text: `$(${self.label}:primary_source)`,
     bgcolor: BLACK,
   });
 
@@ -146,7 +151,7 @@ export default function UpdatePresets(self) {
       const id = `out_${safeId(source)}_${safeId(output.name)}`;
       presets[id] = preset({
         name: `${output.name} (${output.kind}) — enable/disable`,
-        text: `${output.name}\n$(weblinked:${safeId(source)}_out_${safeId(output.name)}_receivers) rx`,
+        text: `${output.name}\n$(${self.label}:${safeId(source)}_out_${safeId(output.name)}_receivers) rx`,
         bgcolor: BLACK,
         actions: [
           {
@@ -207,7 +212,7 @@ export default function UpdatePresets(self) {
   // --- Health --------------------------------------------------------------
   presets.health_pacing = preset({
     name: "Pacing health (no action)",
-    text: "DROP\n$(weblinked:$(weblinked:primary_source)_dropped_ticks)",
+    text: `DROP\n$(${self.label}:$(${self.label}:primary_source)_dropped_ticks)`,
     bgcolor: BLACK,
     feedbacks: [
       {
@@ -259,7 +264,7 @@ export default function UpdatePresets(self) {
 
   presets.connected = preset({
     name: "WebLinked is connected",
-    text: "WEBLINKED\n$(weblinked:connection_status)",
+    text: `WEBLINKED\n$(${self.label}:connection_status)`,
     bgcolor: RED,
     actions: [{ actionId: "refresh", options: {} }],
     feedbacks: [
