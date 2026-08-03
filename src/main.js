@@ -5,6 +5,7 @@ import UpdateFeedbacks from "./feedbacks.js";
 import UpdateVariableDefinitions from "./variables.js";
 import UpdatePresets from "./presets.js";
 import { fetchSources } from "./api.js";
+import { aboutField } from './about-field.js'
 
 /** Companion variable ids allow only [a-zA-Z0-9_]. Source ids and NDI output
  *  names are free text — "Lower Third" and "cam-1" are both normal — so both
@@ -92,6 +93,10 @@ export default class ModuleInstance extends InstanceBase {
         value:
           "WebLinked has no push channel for state, so every feedback and variable lags reality by up to one interval. The pacing and receiver counters are the numbers worth watching in real time — 1000 ms suits a monitoring page; raise it if the machine is loaded.",
       },
+    
+    	// Vendored from stoatworks-backend/about. A Companion module has no
+    	// UI of its own, so this config panel is the only surface it has.
+    	aboutField(),
     ];
   }
 
