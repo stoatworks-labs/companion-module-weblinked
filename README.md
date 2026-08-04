@@ -103,6 +103,10 @@ feedbacks, and the generated per-output presets.
 Not in the official Companion module store. Install via
 **Settings → Developer modules path**.
 
+<!-- attributions:start -->
+This project is built on other people's work — see [ATTRIBUTIONS.md](ATTRIBUTIONS.md).
+<!-- attributions:end -->
+
 ## Licence
 
 MIT — see [LICENSE](LICENSE).
