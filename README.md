@@ -10,6 +10,21 @@ A [Bitfocus Companion](https://bitfocus.io/companion) connection module for
 that is going out over SDI, NDI or OMT from a Stream Deck, and watch whether it
 is actually going out.
 
+<!-- downloads:start -->
+
+## Download
+
+**[v1.0.0](https://github.com/stoatworks-labs/companion-module-weblinked/releases/tag/v1.0.0)**
+
+This release contains:
+
+- [`companion-module-weblinked-pkg.tgz`](https://github.com/stoatworks-labs/companion-module-weblinked/releases/latest/download/companion-module-weblinked-pkg.tgz) — npm package, 12 KB
+- [`weblinked-1.0.0.tgz`](https://github.com/stoatworks-labs/companion-module-weblinked/releases/download/v1.0.0/weblinked-1.0.0.tgz) — npm package, 12 KB
+
+All builds, checksums and release notes: [github.com/stoatworks-labs/companion-module-weblinked/releases](https://github.com/stoatworks-labs/companion-module-weblinked/releases).
+
+<!-- downloads:end -->
+
 ## What it does
 
 - **Actions** — navigate, reload (with cache bypass), **run JavaScript in the
