@@ -512,6 +512,60 @@ await check("no bare checkFeedbacks() survives in src/", async () => {
   assert.deepEqual(offenders, [], "use checkAllFeedbacks() instead");
 });
 
+console.log("\n== bonjour target resolution ==");
+// Companion always offers "Manual" alongside the discovered devices, because
+// mDNS does not work in every environment — so both paths have to work, and
+// the discovered one has to win when it is set.
+await check("resolveTarget prefers a discovered device", async () => {
+  const { resolveTarget } = await import(`${MOD}api.js`);
+
+  assert.deepEqual(
+    resolveTarget({ host: "127.0.0.1", port: "7654", device: "192.168.1.40:7664" }),
+    { host: "192.168.1.40", port: "7664" },
+    "a selected device must override the typed-in host",
+  );
+
+  // "Manual" comes back as null or "", and must fall through cleanly.
+  assert.deepEqual(resolveTarget({ host: "10.0.0.5", port: "7654", device: null }), {
+    host: "10.0.0.5",
+    port: "7654",
+  });
+  assert.deepEqual(resolveTarget({ host: "10.0.0.5", port: "7654", device: "" }), {
+    host: "10.0.0.5",
+    port: "7654",
+  });
+
+  // Split on the LAST colon, or an IPv6 literal loses everything after its
+  // first group and the module quietly talks to the wrong address.
+  assert.deepEqual(resolveTarget({ device: "[fd00::1]:7654" }), {
+    host: "[fd00::1]",
+    port: "7654",
+  });
+
+  // A selection carrying no port falls back rather than building
+  // "http://host:undefined", which fails with an unreadable error.
+  assert.deepEqual(resolveTarget({ device: "192.168.1.40", port: "7654" }), {
+    host: "192.168.1.40",
+    port: "7654",
+  });
+});
+
+await check("the bonjour query and its config field agree", async () => {
+  // They are matched by id: a query named "device" needs a bonjour-device
+  // field with id "device". A mismatch shows an empty picker and no error.
+  const { readFileSync } = await import("node:fs");
+  const manifest = JSON.parse(
+    readFileSync(new URL("../companion/manifest.json", import.meta.url).pathname, "utf8"),
+  );
+  const queries = Object.keys(manifest.bonjourQueries ?? {});
+  assert.deepEqual(queries, ["device"]);
+  assert.equal(manifest.bonjourQueries.device.type, "_weblinked._tcp");
+  assert.equal(manifest.bonjourQueries.device.protocol, "tcp");
+
+  const main = readFileSync(new URL("../src/main.js", import.meta.url).pathname, "utf8");
+  assert.match(main, /type:\s*"bonjour-device",\s*\n\s*id:\s*"device"/);
+});
+
 console.log(
   failures === 0
     ? "\nAll checks passed.\n"

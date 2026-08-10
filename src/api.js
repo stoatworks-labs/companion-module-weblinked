@@ -30,8 +30,41 @@ function headers(self, json) {
   return h;
 }
 
+/**
+ * Where to send requests: the discovered instance if one is selected, else the
+ * host and port typed into the config.
+ *
+ * Companion hands back a bonjour selection as `address:port`, and `null` when
+ * the user picked "Manual" — which is always available, because mDNS does not
+ * work in every environment. Exported so it can be tested without a Companion
+ * runtime.
+ */
+export function resolveTarget(config) {
+  const device = String(config?.device ?? "").trim();
+  if (device) {
+    // Split on the LAST colon: an IPv6 literal is full of them, and Companion
+    // brackets it as [::1]:7654 in that case.
+    const separator = device.lastIndexOf(":");
+    if (separator > 0) {
+      const host = device.slice(0, separator);
+      const port = device.slice(separator + 1);
+      if (/^\d+$/.test(port)) {
+        return { host, port };
+      }
+    }
+    // A selection with no port at all: fall back to the configured one rather
+    // than building an unusable URL.
+    return { host: device, port: String(config?.port ?? "7654") };
+  }
+  return {
+    host: String(config?.host ?? "127.0.0.1"),
+    port: String(config?.port ?? "7654"),
+  };
+}
+
 function base(self) {
-  return `http://${self.config.host}:${self.config.port}`;
+  const { host, port } = resolveTarget(self.config);
+  return `http://${host}:${port}`;
 }
 
 export async function getJson(self, path, source) {

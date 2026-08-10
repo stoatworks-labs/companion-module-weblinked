@@ -22,6 +22,12 @@
     "entrypoint": "../src/main.js"
   },
   "legacyIds": [],
+  "bonjourQueries": {
+    "device": {
+      "type": "_weblinked._tcp",
+      "protocol": "tcp"
+    }
+  },
   "manufacturer": "Stoatworks Labs",
   "products": ["WebLinked"],
   "keywords": ["ndi", "decklink", "sdi", "graphics", "browser", "cef", "omt"]

@@ -51,7 +51,18 @@ export default class ModuleInstance extends InstanceBase {
         width: 12,
         label: "Connection",
         value:
-          "WebLinked's HTTP control API — <code>127.0.0.1:7654</code> by default. Bound to an interface (<code>--bind 0.0.0.0</code>) it should be run with <code>--token</code>; put that token below. There is no TLS, so keep it on a trusted show network or behind a proxy.",
+          "WebLinked's HTTP control API — <code>127.0.0.1:7654</code> by default. Pick a discovered instance below, or type the address in. Bound to an interface (<code>--bind 0.0.0.0</code>) it should be run with <code>--token</code>; put that token below. There is no TLS, so keep it on a trusted show network or behind a proxy.<br><br>Discovery finds WebLinked 0.8.0 and later. Note that an instance left on the default loopback bind <em>deliberately does not advertise</em> — nothing off its machine could reach it — so if it is missing from the list, that is the first thing to check.",
+      },
+      {
+        // Companion does the browsing; the module only declares what to look
+        // for, in companion/manifest.json under the matching id. WebLinked
+        // advertises _weblinked._tcp from 0.8.0 — an older one, or one started
+        // with --no-mdns, or a machine on another subnet, is still typed in
+        // below. Discovery is a convenience, never the only way in.
+        type: "bonjour-device",
+        id: "device",
+        label: "WebLinked instance",
+        width: 12,
       },
       {
         type: "textinput",
@@ -60,6 +71,11 @@ export default class ModuleInstance extends InstanceBase {
         width: 8,
         default: "127.0.0.1",
         regex: Regex.HOSTNAME,
+        // Hidden once a discovered instance is selected, because the value
+        // here is then ignored — leaving a stale 127.0.0.1 on screen next to a
+        // working connection is the kind of thing someone later "fixes".
+        disableAutoExpression: true,
+        isVisibleExpression: "$(options:device) == ''",
       },
       {
         type: "textinput",
@@ -68,6 +84,8 @@ export default class ModuleInstance extends InstanceBase {
         width: 4,
         default: "7654",
         regex: Regex.PORT,
+        disableAutoExpression: true,
+        isVisibleExpression: "$(options:device) == ''",
       },
       {
         type: "textinput",

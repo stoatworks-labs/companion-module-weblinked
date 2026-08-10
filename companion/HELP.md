@@ -12,6 +12,26 @@ trusted show network.
 This module polls; WebLinked has no push channel for state. Every feedback and
 variable therefore lags reality by up to one poll interval.
 
+### Finding an instance
+
+WebLinked 0.8.0 and later advertise themselves over mDNS, so the config panel
+offers a list to pick from instead of an address to type. Choosing one hides
+the host and port fields, because they are then ignored.
+
+"Manual" is always available, and is the answer whenever discovery comes up
+empty. It comes up empty for four reasons worth knowing, in rough order of how
+often they are the cause:
+
+- **The instance is on the default loopback bind.** It refuses to advertise on
+  purpose — nothing off its machine could reach the address it would publish —
+  and says so in its log. Start it with `--bind 0.0.0.0`.
+- **Companion is on another subnet.** mDNS does not cross a router.
+- **Multicast is filtered**, which is common on managed venue networks.
+- **The instance is older than 0.8.0**, or was started with `--no-mdns`.
+
+None of these stop the module working; they only stop it filling the address
+in for you.
+
 ## Source selector
 
 WebLinked can run several pipelines in one process. Every per-source action and
