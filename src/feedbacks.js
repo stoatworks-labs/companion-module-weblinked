@@ -221,10 +221,11 @@ export default function UpdateFeedbacks(self) {
         },
         sourceOption(self),
       ],
-      callback: async (f, context) => {
-        const wanted = (
-          await context.parseVariablesInString(String(f.options.format ?? ""))
-        ).trim();
+      // `useVariables` options are expanded by Companion before the callback
+      // runs; the 2.x feedback context has no parseVariablesInString, so asking
+      // for one threw and the feedback never evaluated.
+      callback: (f) => {
+        const wanted = String(f.options.format ?? "").trim();
         return !!wanted && src(f)?.format === wanted;
       },
     },

@@ -25,10 +25,12 @@ const sourceOption = (self) => ({
 export default function UpdateActions(self) {
   const outputs = outputChoices(self);
 
-  const text = async (event, key) =>
-    (
-      await self.parseVariablesInString(String(event.options[key] ?? ""))
-    ).trim();
+  // Options declared `useVariables: true` arrive already expanded: Companion
+  // resolves them before invoking the callback. `parseVariablesInString` does
+  // not exist in @companion-module/base 2.x — not on the callback context, not
+  // on InstanceBase — so calling it throws the moment the action fires, while
+  // the module still loads cleanly and every other path keeps working.
+  const text = (event, key) => String(event.options[key] ?? "").trim();
 
   const run = async (fn) => {
     try {
@@ -57,7 +59,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const url = await text(event, "url");
+          const url = text(event, "url");
           if (!url) return;
           await post(self, "/api/url", { url }, event.options.source);
         }),
@@ -104,7 +106,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const script = await text(event, "script");
+          const script = text(event, "script");
           if (!script) return;
           await post(self, "/api/script", { script }, event.options.source);
         }),
@@ -161,7 +163,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const format = await text(event, "format");
+          const format = text(event, "format");
           if (!format) return;
           await post(self, "/api/format", { format }, event.options.source);
         }),
@@ -223,7 +225,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const name = await text(event, "name");
+          const name = text(event, "name");
           if (!name) return;
           let enabled;
           if (event.options.mode === "toggle") {
@@ -276,11 +278,11 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const name = await text(event, "name");
+          const name = text(event, "name");
           if (!name) return;
           const body = { name, background: event.options.background };
           if (event.options.background === "colour") {
-            body.colour = await text(event, "colour");
+            body.colour = text(event, "colour");
           }
           await post(
             self,
@@ -306,7 +308,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const raw = await text(event, "body");
+          const raw = text(event, "body");
           await post(
             self,
             "/api/output/add",
@@ -331,7 +333,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const name = await text(event, "name");
+          const name = text(event, "name");
           if (!name) return;
           await post(
             self,
@@ -369,7 +371,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const raw = await text(event, "body");
+          const raw = text(event, "body");
           await post(self, "/api/settings/apply", { source: JSON.parse(raw) });
         }),
     },
@@ -391,7 +393,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const raw = await text(event, "body");
+          const raw = text(event, "body");
           await post(self, "/api/sources/add", { source: JSON.parse(raw) });
           await self.poll();
         }),
@@ -412,7 +414,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const id = await text(event, "id");
+          const id = text(event, "id");
           if (!id) return;
           await post(self, "/api/sources/remove", { id });
           await self.poll();
@@ -452,7 +454,7 @@ export default function UpdateActions(self) {
       ],
       callback: async (event) =>
         run(async () => {
-          const reason = await text(event, "reason");
+          const reason = text(event, "reason");
           const body = await post(self, "/api/diagnostics/report", { reason });
           self.log(
             "info",

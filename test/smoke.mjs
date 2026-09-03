@@ -202,7 +202,9 @@ const self = {
     presetDefs = p;
   },
   setVariableValues: (v) => Object.assign(variableValues, v),
-  parseVariablesInString: async (s) => s,
+  // No parseVariablesInString stub: base 2.x has no such method, and stubbing
+  // it here is what let the fleet-wide bug ship green. A reintroduced call now
+  // throws in this fixture exactly as it does in Companion.
   sourceId(state) {
     return state?.source?.id ?? state?.id ?? this.primary ?? "";
   },
@@ -280,11 +282,7 @@ const check = async (label, fn) => {
   }
 };
 const fire = (id, options = {}) => actions[id].callback({ options });
-const fb = (id, options = {}) =>
-  feedbacks[id].callback(
-    { options },
-    { parseVariablesInString: async (s) => s },
-  );
+const fb = (id, options = {}) => feedbacks[id].callback({ options }, {});
 
 console.log("\n== connection ==");
 await check("both pipelines arrived", () => {
@@ -520,20 +518,30 @@ await check("resolveTarget prefers a discovered device", async () => {
   const { resolveTarget } = await import(`${MOD}api.js`);
 
   assert.deepEqual(
-    resolveTarget({ host: "127.0.0.1", port: "7654", device: "192.168.1.40:7664" }),
+    resolveTarget({
+      host: "127.0.0.1",
+      port: "7654",
+      device: "192.168.1.40:7664",
+    }),
     { host: "192.168.1.40", port: "7664" },
     "a selected device must override the typed-in host",
   );
 
   // "Manual" comes back as null or "", and must fall through cleanly.
-  assert.deepEqual(resolveTarget({ host: "10.0.0.5", port: "7654", device: null }), {
-    host: "10.0.0.5",
-    port: "7654",
-  });
-  assert.deepEqual(resolveTarget({ host: "10.0.0.5", port: "7654", device: "" }), {
-    host: "10.0.0.5",
-    port: "7654",
-  });
+  assert.deepEqual(
+    resolveTarget({ host: "10.0.0.5", port: "7654", device: null }),
+    {
+      host: "10.0.0.5",
+      port: "7654",
+    },
+  );
+  assert.deepEqual(
+    resolveTarget({ host: "10.0.0.5", port: "7654", device: "" }),
+    {
+      host: "10.0.0.5",
+      port: "7654",
+    },
+  );
 
   // Split on the LAST colon, or an IPv6 literal loses everything after its
   // first group and the module quietly talks to the wrong address.
@@ -555,16 +563,71 @@ await check("the bonjour query and its config field agree", async () => {
   // field with id "device". A mismatch shows an empty picker and no error.
   const { readFileSync } = await import("node:fs");
   const manifest = JSON.parse(
-    readFileSync(new URL("../companion/manifest.json", import.meta.url).pathname, "utf8"),
+    readFileSync(
+      new URL("../companion/manifest.json", import.meta.url).pathname,
+      "utf8",
+    ),
   );
   const queries = Object.keys(manifest.bonjourQueries ?? {});
   assert.deepEqual(queries, ["device"]);
   assert.equal(manifest.bonjourQueries.device.type, "_weblinked._tcp");
   assert.equal(manifest.bonjourQueries.device.protocol, "tcp");
 
-  const main = readFileSync(new URL("../src/main.js", import.meta.url).pathname, "utf8");
+  const main = readFileSync(
+    new URL("../src/main.js", import.meta.url).pathname,
+    "utf8",
+  );
   assert.match(main, /type:\s*"bonjour-device",\s*\n\s*id:\s*"device"/);
 });
+
+// --- the two release traps --------------------------------------------------
+// `parseVariablesInString` / `parseVariablesInField` were removed in
+// @companion-module/base 2.x — not on the callback context, not on InstanceBase,
+// not exported. Companion expands a `useVariables` option itself before invoking
+// the callback, so the call is redundant as well as fatal: it throws the moment
+// that action or feedback fires while the module still loads and everything else
+// keeps working. This is the second time it has landed here — the 2026-08-21
+// removal came back with a dependency merge — so the grep is the backstop for
+// any path the fixture does not exercise. It matches the call form only, so
+// prose naming the functions stays legal.
+await check(
+  "no parseVariablesInString/Field call survives in src/",
+  async () => {
+    const { readdirSync, readFileSync } = await import("node:fs");
+    const dir = new URL("../src/", import.meta.url).pathname;
+    const bad = readdirSync(dir)
+      .filter((f) => /\.(js|ts)$/.test(f))
+      .filter((f) =>
+        /parseVariablesIn(String|Field)\s*\(/.test(
+          readFileSync(dir + f, "utf8"),
+        ),
+      );
+    assert.deepEqual(
+      bad,
+      [],
+      "read the already-resolved options value instead",
+    );
+  },
+);
+
+// Companion keys an installed module on id + version and discards a reinstall
+// whose pair it already has. companion/manifest.json sat at 1.0.0 while
+// package.json moved to 1.1.1, so no release since 1.0.0 ever reached a
+// Companion that already had the module: the update appeared to work and
+// changed nothing.
+await check(
+  "companion/manifest.json version matches package.json",
+  async () => {
+    const { readFileSync } = await import("node:fs");
+    const read = (p) =>
+      JSON.parse(readFileSync(new URL(p, import.meta.url).pathname, "utf8"));
+    assert.equal(
+      read("../companion/manifest.json").version,
+      read("../package.json").version,
+      "bump both, or the release never reaches an existing install",
+    );
+  },
+);
 
 console.log(
   failures === 0
