@@ -14,12 +14,12 @@ is actually going out.
 
 ## Download
 
-**[v1.1.2](https://github.com/stoatworks-labs/companion-module-weblinked/releases/tag/v1.1.2)**
+**[v1.1.3](https://github.com/stoatworks-labs/companion-module-weblinked/releases/tag/v1.1.3)**
 
 This release contains:
 
 - [`companion-module-weblinked-pkg.tgz`](https://github.com/stoatworks-labs/companion-module-weblinked/releases/latest/download/companion-module-weblinked-pkg.tgz) — npm package, 13 KB
-- [`weblinked-1.1.2.tgz`](https://github.com/stoatworks-labs/companion-module-weblinked/releases/download/v1.1.2/weblinked-1.1.2.tgz) — npm package, 13 KB
+- [`weblinked-1.1.3.tgz`](https://github.com/stoatworks-labs/companion-module-weblinked/releases/download/v1.1.3/weblinked-1.1.3.tgz) — npm package, 13 KB
 
 All builds, checksums and release notes: [github.com/stoatworks-labs/companion-module-weblinked/releases](https://github.com/stoatworks-labs/companion-module-weblinked/releases).
 
