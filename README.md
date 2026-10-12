@@ -115,7 +115,10 @@ health feedbacks, and the generated per-output presets.
 
 ## Installing
 
-It's not in the official Companion module store, so install it as a developer
+It's not in the official Companion module store. The quick way is to download
+`companion-module-weblinked-pkg.tgz` from the
+[releases page](https://github.com/stoatworks-labs/companion-module-weblinked/releases) and
+import it with Companion's **Modules → Import module package**. Or install it as a developer
 module through **Settings → Developer modules path**.
 
 <!-- attributions:start -->
