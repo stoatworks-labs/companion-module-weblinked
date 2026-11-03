@@ -9,6 +9,8 @@ A [Bitfocus Companion](https://bitfocus.io/companion) module for
 that's going out over SDI, NDI or OMT from a Stream Deck, and tells you whether
 it's actually going out.
 
+The [project page](https://stoatworks-labs.com/software/companion-weblinked/) has the downloads and the [user guide](https://stoatworks-labs.com/software/companion-weblinked/guide/).
+
 <!-- downloads:start -->
 
 ## Download
