@@ -62,9 +62,20 @@ export function resolveTarget(config) {
   };
 }
 
-function base(self) {
+// The host field takes any text, so a typed IPv6 address needs its brackets
+// added before it can sit in a URL. A discovered one arrives bracketed.
+export function hostPort(self) {
   const { host, port } = resolveTarget(self.config);
-  return `http://${host}:${port}`;
+  const trimmed = host.trim();
+  const bracketed =
+    trimmed.includes(":") && !trimmed.startsWith("[")
+      ? `[${trimmed}]`
+      : trimmed;
+  return `${bracketed}:${port}`;
+}
+
+function base(self) {
+  return `http://${hostPort(self)}`;
 }
 
 export async function getJson(self, path, source) {
